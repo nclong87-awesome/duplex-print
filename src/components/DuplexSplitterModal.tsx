@@ -13,6 +13,7 @@ import {
 import {
   splitPdfForDuplex,
   printPdfBlob,
+  openPdfInNewTab,
   downloadPdfBlob,
   DuplexSplitResult
 } from '../utils/pdfDuplexSplitter';
@@ -32,8 +33,76 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
   const [isProcessing, setIsProcessing] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reverseEvenPages, setReverseEvenPages] = useState<boolean>(true); // Default enabled
+  const [isPrintingFront, setIsPrintingFront] = useState<boolean>(false);
+  const [isPrintingBack, setIsPrintingBack] = useState<boolean>(false);
+  const [isOpeningTabFront, setIsOpeningTabFront] = useState<boolean>(false);
+  const [isOpeningTabBack, setIsOpeningTabBack] = useState<boolean>(false);
 
   const cleanBaseName = fileName.replace(/\.pdf$/i, '');
+
+  const handlePrintFront = async () => {
+    if (!splitResult) return;
+    setIsPrintingFront(true);
+    try {
+      await printPdfBlob(
+        splitResult.oddPagesUrl,
+        splitResult.oddPagesBlob,
+        `${cleanBaseName} - Part 1 (Odd Pages)`
+      );
+    } catch (err) {
+      console.error('Print Front Pages error:', err);
+    } finally {
+      setIsPrintingFront(false);
+    }
+  };
+
+  const handlePrintBack = async () => {
+    if (!splitResult) return;
+    setIsPrintingBack(true);
+    try {
+      await printPdfBlob(
+        splitResult.evenPagesUrl,
+        splitResult.evenPagesBlob,
+        `${cleanBaseName} - Part 2 (Even Pages)`
+      );
+    } catch (err) {
+      console.error('Print Back Pages error:', err);
+    } finally {
+      setIsPrintingBack(false);
+    }
+  };
+
+  const handleOpenTabFront = async () => {
+    if (!splitResult) return;
+    setIsOpeningTabFront(true);
+    try {
+      await openPdfInNewTab(
+        splitResult.oddPagesUrl,
+        splitResult.oddPagesBlob,
+        `${cleanBaseName} - Part 1 (Odd Pages)`
+      );
+    } catch (err) {
+      console.error('Open Tab Front error:', err);
+    } finally {
+      setIsOpeningTabFront(false);
+    }
+  };
+
+  const handleOpenTabBack = async () => {
+    if (!splitResult) return;
+    setIsOpeningTabBack(true);
+    try {
+      await openPdfInNewTab(
+        splitResult.evenPagesUrl,
+        splitResult.evenPagesBlob,
+        `${cleanBaseName} - Part 2 (Even Pages)`
+      );
+    } catch (err) {
+      console.error('Open Tab Back error:', err);
+    } finally {
+      setIsOpeningTabBack(false);
+    }
+  };
 
   // Process PDF split whenever reverse option changes
   useEffect(() => {
@@ -127,16 +196,22 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
             </div>
           ) : splitResult ? (
             <>
-              {/* Document Summary Stats Bar */}
-              <div className="flex items-center justify-between px-3 py-2 bg-slate-950/60 border border-slate-800/80 rounded-xl text-xs text-slate-300">
-                <div className="flex items-center gap-1.5 text-slate-300">
-                  <FileText className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Total: <strong className="text-slate-100">{splitResult.totalPages} pg</strong></span>
+              {/* Document Summary & 100% Original Quality Guarantee */}
+              <div className="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-2.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-slate-300">
+                  <div className="flex items-center gap-1.5 text-slate-300">
+                    <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Total: <strong className="text-slate-100">{splitResult.totalPages} pg</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-400 text-[11px]">
+                    <span>Front (Odd): <strong className="text-indigo-400">{splitResult.oddCount}</strong></span>
+                    <span>•</span>
+                    <span>Back (Even): <strong className="text-emerald-400">{splitResult.evenCount}</strong></span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-                  <span>Odd: <strong className="text-indigo-400">{splitResult.oddCount}</strong></span>
-                  <span>•</span>
-                  <span>Even: <strong className="text-emerald-400">{splitResult.evenCount}</strong></span>
+                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-medium pt-1 border-t border-slate-800/60">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <span>100% Original Vector & Image Quality Preserved (Zero Loss / No Re-encoding)</span>
                 </div>
               </div>
 
@@ -180,31 +255,44 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                         Part 1: Odd Pages ({splitResult.oddCount})
                       </span>
                     </div>
-                    <a
-                      href={splitResult.oddPagesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded text-xs flex items-center gap-1 transition-all"
-                      title="Preview Part 1"
+                    <button
+                      onClick={handleOpenTabFront}
+                      disabled={isOpeningTabFront}
+                      className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded text-xs flex items-center gap-1 transition-all disabled:opacity-50"
+                      title="Open Part 1 in new tab with print controls"
                     >
-                      <ExternalLink className="w-3 h-3" />
-                      <span className="text-[11px]">Preview</span>
-                    </a>
+                      {isOpeningTabFront ? (
+                        <RotateCw className="w-3 h-3 animate-spin text-indigo-400" />
+                      ) : (
+                        <ExternalLink className="w-3 h-3 text-indigo-400" />
+                      )}
+                      <span className="text-[11px]">{isOpeningTabFront ? 'Opening...' : 'Open Tab'}</span>
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => printPdfBlob(splitResult.oddPagesUrl)}
-                      className="flex-1 py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                      onClick={handlePrintFront}
+                      disabled={isPrintingFront}
+                      className="flex-1 py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
                     >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>Print Front Pages</span>
+                      {isPrintingFront ? (
+                        <>
+                          <RotateCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Opening Printer...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>Print Front Pages</span>
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={() =>
                         downloadPdfBlob(splitResult.oddPagesBlob, `${cleanBaseName}_Part1_OddPages.pdf`)
                       }
-                      className="py-1.5 px-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-slate-100 text-xs font-medium rounded-lg flex items-center gap-1 transition-all"
+                      className="py-1.5 px-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-slate-100 text-xs font-medium rounded-lg flex items-center gap-1 transition-all active:scale-95"
                       title="Download Part 1 PDF"
                     >
                       <Download className="w-3.5 h-3.5 text-slate-400" />
@@ -225,31 +313,44 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                         {reverseEvenPages && <span className="text-[10px] text-slate-400 font-normal ml-1">(Reversed)</span>}
                       </span>
                     </div>
-                    <a
-                      href={splitResult.evenPagesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded text-xs flex items-center gap-1 transition-all"
-                      title="Preview Part 2"
+                    <button
+                      onClick={handleOpenTabBack}
+                      disabled={isOpeningTabBack}
+                      className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded text-xs flex items-center gap-1 transition-all disabled:opacity-50"
+                      title="Open Part 2 in new tab with print controls"
                     >
-                      <ExternalLink className="w-3.5 h-3" />
-                      <span className="text-[11px]">Preview</span>
-                    </a>
+                      {isOpeningTabBack ? (
+                        <RotateCw className="w-3 h-3 animate-spin text-emerald-400" />
+                      ) : (
+                        <ExternalLink className="w-3 h-3 text-emerald-400" />
+                      )}
+                      <span className="text-[11px]">{isOpeningTabBack ? 'Opening...' : 'Open Tab'}</span>
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => printPdfBlob(splitResult.evenPagesUrl)}
-                      className="flex-1 py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                      onClick={handlePrintBack}
+                      disabled={isPrintingBack}
+                      className="flex-1 py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-70 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
                     >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>Print Back Pages</span>
+                      {isPrintingBack ? (
+                        <>
+                          <RotateCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Opening Printer...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>Print Back Pages</span>
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={() =>
                         downloadPdfBlob(splitResult.evenPagesBlob, `${cleanBaseName}_Part2_EvenPages.pdf`)
                       }
-                      className="py-1.5 px-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-slate-100 text-xs font-medium rounded-lg flex items-center gap-1 transition-all"
+                      className="py-1.5 px-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-slate-100 text-xs font-medium rounded-lg flex items-center gap-1 transition-all active:scale-95"
                       title="Download Part 2 PDF"
                     >
                       <Download className="w-3.5 h-3.5 text-slate-400" />

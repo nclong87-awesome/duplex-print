@@ -28,13 +28,18 @@ export async function renderPdfPage(
     throw new Error('Canvas 2D context not available');
   }
 
-  // Set crisp canvas dimensions for high DPI / mobile displays
-  const outputScale = window.devicePixelRatio || 1;
+  // Set crisp canvas dimensions for high DPI / mobile & desktop displays (min scale 2x for sharp detail)
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  const outputScale = Math.max(dpr, 2);
 
   canvas.width = Math.floor(viewport.width * outputScale);
   canvas.height = Math.floor(viewport.height * outputScale);
   canvas.style.width = Math.floor(viewport.width) + 'px';
   canvas.style.height = Math.floor(viewport.height) + 'px';
+
+  // Enable high-quality smoothing for images & vector curves
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = 'high';
 
   context.scale(outputScale, outputScale);
 
@@ -42,6 +47,7 @@ export async function renderPdfPage(
     canvasContext: context,
     viewport: viewport,
     canvas: canvas,
+    renderInteractiveForms: true,
   };
 
   await page.render(renderContext).promise;
