@@ -1,0 +1,6 @@
+{
+  "name": "DuplexPrint",
+  "description": "Fast and easy double-sided PDF splitter and printing helper for single-sided printers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
