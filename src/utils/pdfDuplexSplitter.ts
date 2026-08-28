@@ -27,8 +27,31 @@ export async function splitPdfForDuplex(
   fileName: string,
   options: SplitOptions = { reverseEvenPages: false }
 ): Promise<DuplexSplitResult> {
-  const srcPdf = await PDFDocument.load(arrayBuffer);
+  if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+    throw new Error('PDF file buffer is empty or detached. Please reload the document.');
+  }
+
+  // Safely clone buffer array to prevent detachment issues
+  const bufferCopy = arrayBuffer.slice(0);
+  const uint8Data = new Uint8Array(bufferCopy);
+
+  let srcPdf: PDFDocument;
+  try {
+    srcPdf = await PDFDocument.load(uint8Data, {
+      ignoreEncryption: true,
+      updateMetadata: false,
+    });
+  } catch (loadErr: any) {
+    console.error('pdf-lib load error:', loadErr);
+    throw new Error(
+      `Could not parse PDF structure: ${loadErr?.message || 'File may be corrupt or encrypted.'}`
+    );
+  }
+
   const totalPages = srcPdf.getPageCount();
+  if (totalPages === 0) {
+    throw new Error('The PDF document contains 0 pages.');
+  }
 
   // 0-based page indices
   const oddIndices: number[] = [];

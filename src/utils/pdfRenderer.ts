@@ -7,7 +7,9 @@ if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
 }
 
 export async function loadPdfDocument(data: ArrayBuffer): Promise<pdfjsLib.PDFDocumentProxy> {
-  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(data) });
+  // Always create a copy of the ArrayBuffer so pdfjs worker transfers do not detach state ArrayBuffers
+  const safeBuffer = data && data.byteLength > 0 ? data.slice(0) : new ArrayBuffer(0);
+  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(safeBuffer) });
   return await loadingTask.promise;
 }
 

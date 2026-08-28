@@ -36,6 +36,7 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
 }) => {
   const [splitResult, setSplitResult] = useState<DuplexSplitResult | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [reverseEvenPages, setReverseEvenPages] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [showGuide, setShowGuide] = useState<boolean>(true);
@@ -46,6 +47,7 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
   useEffect(() => {
     let active = true;
     setIsProcessing(true);
+    setError(null);
 
     splitPdfForDuplex(arrayBuffer, fileName, { reverseEvenPages })
       .then((res) => {
@@ -53,9 +55,10 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
         setSplitResult(res);
         setIsProcessing(false);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         if (!active) return;
         console.error('Failed to split PDF for duplex:', err);
+        setError(err?.message || 'Failed to split PDF document.');
         setIsProcessing(false);
       });
 
@@ -172,12 +175,36 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
           </div>
 
           {/* Loading state */}
-          {isProcessing || !splitResult ? (
+          {isProcessing ? (
             <div className="py-12 flex flex-col items-center justify-center text-slate-400 space-y-2">
               <RotateCw className="w-8 h-8 animate-spin text-red-500" />
               <p className="text-xs">Analyzing PDF structure and separating odd/even pages...</p>
             </div>
-          ) : (
+          ) : error ? (
+            <div className="py-8 px-4 flex flex-col items-center justify-center text-center space-y-3 bg-slate-950 border border-red-900/40 rounded-xl">
+              <AlertCircle className="w-10 h-10 text-red-500" />
+              <h3 className="text-sm font-bold text-slate-200">Unable to Split PDF</h3>
+              <p className="text-xs text-slate-400 max-w-xs">{error}</p>
+              <button
+                onClick={() => {
+                  setIsProcessing(true);
+                  setError(null);
+                  splitPdfForDuplex(arrayBuffer, fileName, { reverseEvenPages })
+                    .then((res) => {
+                      setSplitResult(res);
+                      setIsProcessing(false);
+                    })
+                    .catch((err: any) => {
+                      setError(err?.message || 'Failed to split PDF document.');
+                      setIsProcessing(false);
+                    });
+                }}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 rounded-xl transition-all"
+              >
+                Retry Splitting
+              </button>
+            </div>
+          ) : splitResult ? (
             <>
               {/* Document Overview Stats */}
               <div className="grid grid-cols-3 gap-2">
@@ -348,7 +375,7 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                 </div>
               )}
             </>
-          )}
+          ) : null}
         </div>
 
         {/* Footer */}
