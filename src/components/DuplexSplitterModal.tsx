@@ -6,15 +6,12 @@ import {
   RotateCw,
   Info,
   CheckCircle2,
-  ArrowRight,
-  Layers,
-  FileCheck,
   AlertCircle,
-  HelpCircle,
   Sparkles,
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  FileText
 } from 'lucide-react';
 import {
   splitPdfForDuplex,
@@ -37,9 +34,8 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
   const [splitResult, setSplitResult] = useState<DuplexSplitResult | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [reverseEvenPages, setReverseEvenPages] = useState<boolean>(false);
-  const [activeStep, setActiveStep] = useState<number>(1);
-  const [showGuide, setShowGuide] = useState<boolean>(true);
+  const [reverseEvenPages, setReverseEvenPages] = useState<boolean>(true); // Default enabled
+  const [showGuide, setShowGuide] = useState<boolean>(false);
 
   const cleanBaseName = fileName.replace(/\.pdf$/i, '');
 
@@ -78,97 +74,65 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
   }, [splitResult]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-slate-800/90 w-full max-w-lg rounded-2xl flex flex-col shadow-2xl overflow-hidden my-auto transition-all">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900/90 sticky top-0 z-10">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-red-600/20 border border-red-500/30 rounded-xl text-red-400">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800/80 bg-slate-900/95 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400 shrink-0">
               <Printer className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                Manual Duplex Print Splitter
-                <span className="text-[10px] bg-red-950 text-red-300 border border-red-800/60 px-1.5 py-0.2 rounded font-mono font-normal">
-                  2-File Split
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2">
+                Manual Duplex Printing
+                <span className="text-[10px] font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                  2-Step Print
                 </span>
               </h2>
-              <p className="text-[11px] text-slate-400 truncate max-w-[240px]" title={fileName}>
+              <p className="text-xs text-slate-400 truncate mt-0.5 max-w-[280px]" title={fileName}>
                 {fileName}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* How It Works Banner */}
-          <div className="bg-gradient-to-r from-slate-950 to-slate-900 border border-slate-800 rounded-xl p-3 text-xs">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-slate-200">
-                    Perfect for single-sided printers
-                  </p>
-                  <p className="text-slate-400 mt-0.5 leading-relaxed">
-                    Splits your document into <strong className="text-red-400">Odd Pages (Front)</strong> and{' '}
-                    <strong className="text-blue-400">Even Pages (Back)</strong>. Print Part 1 first, re-insert the paper stack, and print Part 2.
-                  </p>
-                </div>
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {/* Workflow Guide Bar */}
+          <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 text-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="font-medium text-slate-200">How Manual Duplex Works</span>
               </div>
               <button
                 onClick={() => setShowGuide(!showGuide)}
-                className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1 shrink-0 bg-slate-800 px-2 py-1 rounded"
+                className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 px-2.5 py-1 rounded-lg transition-colors"
               >
-                <span>Guide</span>
-                {showGuide ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                <span>{showGuide ? 'Hide Instructions' : 'View Instructions'}</span>
+                {showGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
             </div>
 
-            {/* Step-by-Step Folding/Feeding Guide */}
             {showGuide && (
-              <div className="mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-2 text-[11px] text-slate-300">
-                <div
-                  onClick={() => setActiveStep(1)}
-                  className={`p-2 rounded-lg border transition-all cursor-pointer ${
-                    activeStep === 1
-                      ? 'bg-red-950/40 border-red-500/50 text-slate-100'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="font-bold text-red-400 mb-0.5">1. Print Part 1</div>
-                  <div className="text-[10px] text-slate-400">Print odd pages (1, 3, 5...)</div>
+              <div className="mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-2.5 text-[11px]">
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                  <div className="font-semibold text-indigo-400">Step 1: Fronts</div>
+                  <div className="text-slate-400 leading-snug">Print Part 1 (Odd Pages: 1, 3, 5...).</div>
                 </div>
-
-                <div
-                  onClick={() => setActiveStep(2)}
-                  className={`p-2 rounded-lg border transition-all cursor-pointer ${
-                    activeStep === 2
-                      ? 'bg-amber-950/40 border-amber-500/50 text-slate-100'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="font-bold text-amber-400 mb-0.5">2. Flip Stack</div>
-                  <div className="text-[10px] text-slate-400">Place printed pages back in feed tray</div>
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                  <div className="font-semibold text-amber-400">Step 2: Flip Stack</div>
+                  <div className="text-slate-400 leading-snug">Place printed paper directly back into feed tray.</div>
                 </div>
-
-                <div
-                  onClick={() => setActiveStep(3)}
-                  className={`p-2 rounded-lg border transition-all cursor-pointer ${
-                    activeStep === 3
-                      ? 'bg-blue-950/40 border-blue-500/50 text-slate-100'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="font-bold text-blue-400 mb-0.5">3. Print Part 2</div>
-                  <div className="text-[10px] text-slate-400">Print even pages (2, 4, 6...)</div>
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                  <div className="font-semibold text-emerald-400">Step 3: Backs</div>
+                  <div className="text-slate-400 leading-snug">Print Part 2 (Even Pages: 2, 4, 6...).</div>
                 </div>
               </div>
             )}
@@ -176,14 +140,14 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
 
           {/* Loading state */}
           {isProcessing ? (
-            <div className="py-12 flex flex-col items-center justify-center text-slate-400 space-y-2">
-              <RotateCw className="w-8 h-8 animate-spin text-red-500" />
-              <p className="text-xs">Analyzing PDF structure and separating odd/even pages...</p>
+            <div className="py-12 flex flex-col items-center justify-center text-slate-400 space-y-3">
+              <RotateCw className="w-7 h-7 animate-spin text-indigo-400" />
+              <p className="text-xs text-slate-400">Splitting PDF into odd and even pages...</p>
             </div>
           ) : error ? (
-            <div className="py-8 px-4 flex flex-col items-center justify-center text-center space-y-3 bg-slate-950 border border-red-900/40 rounded-xl">
-              <AlertCircle className="w-10 h-10 text-red-500" />
-              <h3 className="text-sm font-bold text-slate-200">Unable to Split PDF</h3>
+            <div className="py-8 px-4 flex flex-col items-center justify-center text-center space-y-3 bg-slate-950 border border-rose-500/20 rounded-xl">
+              <AlertCircle className="w-9 h-9 text-rose-400" />
+              <h3 className="text-sm font-semibold text-slate-200">Unable to Split PDF</h3>
               <p className="text-xs text-slate-400 max-w-xs">{error}</p>
               <button
                 onClick={() => {
@@ -206,64 +170,67 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
             </div>
           ) : splitResult ? (
             <>
-              {/* Document Overview Stats */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center">
-                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Total Pages</span>
-                  <p className="text-lg font-bold text-slate-100 mt-0.5">{splitResult.totalPages}</p>
+              {/* Document Summary Stats Bar */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl text-xs text-slate-300">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-slate-400" />
+                  <span>Total Pages: <strong className="text-slate-100">{splitResult.totalPages}</strong></span>
                 </div>
-                <div className="bg-slate-950 border border-red-900/40 p-2.5 rounded-xl text-center">
-                  <span className="text-[10px] uppercase tracking-wider text-red-400 font-medium">Odd (Front)</span>
-                  <p className="text-lg font-bold text-red-400 mt-0.5">{splitResult.oddCount} <span className="text-xs font-normal text-slate-400">pgs</span></p>
-                </div>
-                <div className="bg-slate-950 border border-blue-900/40 p-2.5 rounded-xl text-center">
-                  <span className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Even (Back)</span>
-                  <p className="text-lg font-bold text-blue-400 mt-0.5">{splitResult.evenCount} <span className="text-xs font-normal text-slate-400">pgs</span></p>
+                <div className="flex items-center gap-3 text-slate-400 font-mono text-[11px]">
+                  <span>Fronts: <strong className="text-indigo-400 font-sans">{splitResult.oddCount}</strong></span>
+                  <span>•</span>
+                  <span>Backs: <strong className="text-emerald-400 font-sans">{splitResult.evenCount}</strong></span>
                 </div>
               </div>
 
-              {/* Printer Feeding Option: Reverse Order toggle */}
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3">
-                <div className="flex items-start gap-2.5">
-                  <RotateCw className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
+              {/* Printer Feeding Setting: Reverse Back Pages Toggle */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <RotateCw className="w-4 h-4 text-amber-400 shrink-0" />
                     <label htmlFor="toggle-reverse-even" className="text-xs font-semibold text-slate-200 cursor-pointer">
-                      Reverse Back Pages (Even Pages) Order
+                      Reverse Back Pages Order
                     </label>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      Turn ON if your printer outputs pages face-up or last-page first, so page 2 aligns directly behind page 1.
-                    </p>
                   </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed pl-6">
+                    Ensures page 2 prints directly behind page 1 when re-feeding the printed stack face-up into standard printers.
+                  </p>
                 </div>
 
-                <input
-                  type="checkbox"
+                {/* Sleek Toggle Switch */}
+                <button
+                  type="button"
                   id="toggle-reverse-even"
-                  checked={reverseEvenPages}
-                  onChange={(e) => setReverseEvenPages(e.target.checked)}
-                  className="w-4 h-4 rounded text-red-600 focus:ring-red-500 bg-slate-800 border-slate-700 shrink-0 cursor-pointer"
-                />
+                  role="switch"
+                  aria-checked={reverseEvenPages}
+                  onClick={() => setReverseEvenPages(!reverseEvenPages)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 mt-0.5 ${
+                    reverseEvenPages ? 'bg-indigo-600' : 'bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      reverseEvenPages ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
 
-              {/* Two Split File Cards */}
+              {/* Print Action Cards */}
               <div className="space-y-3">
                 {/* Part 1: Front Pages (Odd) */}
-                <div className="bg-slate-950 border border-red-900/40 rounded-xl p-3.5 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-red-600/20 border border-red-500/30 text-red-400 flex items-center justify-center text-xs font-bold">
+                <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3 hover:border-slate-700/80 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">
                         1
-                      </div>
+                      </span>
                       <div>
-                        <h3 className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                        <h3 className="text-xs font-semibold text-slate-200">
                           Part 1: Front Side (Odd Pages)
-                          <span className="text-[10px] bg-red-500/20 text-red-300 px-1.5 py-0.2 rounded font-normal">
-                            {splitResult.oddCount} Pages
-                          </span>
                         </h3>
                         <p className="text-[11px] text-slate-400 mt-0.5 font-mono">
-                          Pages: {splitResult.oddPagesList.slice(0, 8).join(', ')}
-                          {splitResult.oddPagesList.length > 8 && ' ...'}
+                          {splitResult.oddCount} {splitResult.oddCount === 1 ? 'page' : 'pages'} ({splitResult.oddPagesList.slice(0, 6).join(', ')}{splitResult.oddPagesList.length > 6 ? '...' : ''})
                         </p>
                       </div>
                     </div>
@@ -272,21 +239,18 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                       href={splitResult.oddPagesUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-slate-400 hover:text-slate-200 flex items-center gap-1 bg-slate-900 border border-slate-800 px-2 py-1 rounded"
+                      className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 border border-transparent hover:border-slate-700 rounded-lg text-xs flex items-center gap-1 transition-all"
                       title="Preview Part 1 in new tab"
                     >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>Preview</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span className="text-[11px]">Preview</span>
                     </a>
                   </div>
 
                   <div className="flex items-center gap-2 pt-1">
                     <button
-                      onClick={() => {
-                        setActiveStep(2);
-                        printPdfBlob(splitResult.oddPagesUrl);
-                      }}
-                      className="flex-1 py-2 px-3 bg-red-600 hover:bg-red-500 text-white text-xs font-medium rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                      onClick={() => printPdfBlob(splitResult.oddPagesUrl)}
+                      className="flex-1 py-2 px-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all"
                     >
                       <Printer className="w-4 h-4" />
                       <span>Print Front Pages</span>
@@ -296,33 +260,29 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                       onClick={() =>
                         downloadPdfBlob(splitResult.oddPagesBlob, `${cleanBaseName}_Part1_OddPages.pdf`)
                       }
-                      className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all"
-                      title="Save Part 1 PDF file"
+                      className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-slate-100 text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all"
+                      title="Download Part 1 PDF"
                     >
                       <Download className="w-4 h-4 text-slate-400" />
-                      <span className="hidden sm:inline">Save PDF</span>
+                      <span className="hidden sm:inline text-xs">Save PDF</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Part 2: Back Pages (Even) */}
-                <div className="bg-slate-950 border border-blue-900/40 rounded-xl p-3.5 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-bold">
+                <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3 hover:border-slate-700/80 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">
                         2
-                      </div>
+                      </span>
                       <div>
-                        <h3 className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                        <h3 className="text-xs font-semibold text-slate-200">
                           Part 2: Back Side (Even Pages)
-                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded font-normal">
-                            {splitResult.evenCount} Pages
-                          </span>
                         </h3>
                         <p className="text-[11px] text-slate-400 mt-0.5 font-mono">
-                          Pages: {splitResult.evenPagesList.slice(0, 8).join(', ')}
-                          {splitResult.evenPagesList.length > 8 && ' ...'}
-                          {reverseEvenPages && ' (Reversed)'}
+                          {splitResult.evenCount} {splitResult.evenCount === 1 ? 'page' : 'pages'} ({splitResult.evenPagesList.slice(0, 6).join(', ')}{splitResult.evenPagesList.length > 6 ? '...' : ''})
+                          {reverseEvenPages && ' • Reversed'}
                         </p>
                       </div>
                     </div>
@@ -331,21 +291,18 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                       href={splitResult.evenPagesUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-slate-400 hover:text-slate-200 flex items-center gap-1 bg-slate-900 border border-slate-800 px-2 py-1 rounded"
+                      className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 border border-transparent hover:border-slate-700 rounded-lg text-xs flex items-center gap-1 transition-all"
                       title="Preview Part 2 in new tab"
                     >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>Preview</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span className="text-[11px]">Preview</span>
                     </a>
                   </div>
 
                   <div className="flex items-center gap-2 pt-1">
                     <button
-                      onClick={() => {
-                        setActiveStep(3);
-                        printPdfBlob(splitResult.evenPagesUrl);
-                      }}
-                      className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                      onClick={() => printPdfBlob(splitResult.evenPagesUrl)}
+                      className="flex-1 py-2 px-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all"
                     >
                       <Printer className="w-4 h-4" />
                       <span>Print Back Pages</span>
@@ -355,22 +312,22 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                       onClick={() =>
                         downloadPdfBlob(splitResult.evenPagesBlob, `${cleanBaseName}_Part2_EvenPages.pdf`)
                       }
-                      className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all"
-                      title="Save Part 2 PDF file"
+                      className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-slate-100 text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all"
+                      title="Download Part 2 PDF"
                     >
                       <Download className="w-4 h-4 text-slate-400" />
-                      <span className="hidden sm:inline">Save PDF</span>
+                      <span className="hidden sm:inline text-xs">Save PDF</span>
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Notice / Tip for odd total page count */}
+              {/* Odd page warning */}
               {splitResult.totalPages % 2 !== 0 && (
-                <div className="p-2.5 bg-amber-950/30 border border-amber-800/50 rounded-xl flex items-start gap-2 text-[11px] text-amber-200">
+                <div className="p-3 bg-slate-950/60 border border-amber-500/20 rounded-xl flex items-start gap-2.5 text-xs text-amber-200/90 leading-relaxed">
                   <Info className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
                   <span>
-                    <strong>Odd total pages ({splitResult.totalPages} pages):</strong> Part 1 has {splitResult.oddCount} pages and Part 2 has {splitResult.evenCount} pages. The final back side will remain blank as expected.
+                    Document has an odd number of pages ({splitResult.totalPages}). Part 1 has {splitResult.oddCount} pages and Part 2 has {splitResult.evenCount} pages. The final back page will remain blank as expected.
                   </span>
                 </div>
               )}
@@ -379,14 +336,14 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-          <span className="flex items-center gap-1">
+        <div className="px-5 py-3 bg-slate-900/95 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+          <span className="flex items-center gap-1.5 text-slate-400">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            Processed 100% locally in browser
+            Processed locally in browser
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all"
+            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700/80 text-slate-200 rounded-xl font-medium transition-all"
           >
             Close
           </button>
@@ -395,3 +352,4 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
     </div>
   );
 };
+
