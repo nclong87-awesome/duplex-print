@@ -196,8 +196,8 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
             </div>
           ) : splitResult ? (
             <>
-              {/* Document Summary & 100% Original Quality Guarantee */}
-              <div className="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-2.5 space-y-1.5">
+              {/* Document Summary */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5">
                 <div className="flex items-center justify-between text-xs text-slate-300">
                   <div className="flex items-center gap-1.5 text-slate-300">
                     <FileText className="w-3.5 h-3.5 text-indigo-400" />
@@ -208,10 +208,6 @@ export const DuplexSplitterModal: React.FC<DuplexSplitterModalProps> = ({
                     <span>•</span>
                     <span>Back (Even): <strong className="text-emerald-400">{splitResult.evenCount}</strong></span>
                   </div>
-                </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-medium pt-1 border-t border-slate-800/60">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
-                  <span>100% Original Vector & Image Quality Preserved (Zero Loss / No Re-encoding)</span>
                 </div>
               </div>
 

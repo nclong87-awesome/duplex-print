@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Upload, FileText, AlertCircle, CheckCircle2, HardDrive } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle2, HardDrive } from 'lucide-react';
 import { formatFileSize } from '../utils/pdfStorage';
 
 interface UploadZoneProps {

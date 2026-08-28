@@ -5,12 +5,6 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCw,
-  Maximize2,
-  Columns,
-  Layers,
-  Monitor,
-  Eye,
-  Printer,
 } from 'lucide-react';
 import { ViewerState } from '../types';
 
@@ -139,62 +133,6 @@ export const PdfViewerControls: React.FC<PdfViewerControlsProps> = ({
             title="Rotate 90°"
           >
             <RotateCw className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Display / Viewer Mode Toggles & Duplex Split */}
-        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <button
-            id="btn-duplex-split-toolbar"
-            onClick={onOpenDuplexSplitter}
-            className="flex items-center gap-1 px-2 py-1 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"
-            title="Split PDF for manual double-sided printing"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span className="text-[11px] font-bold">Duplex Split</span>
-          </button>
-
-          <div className="w-px h-4 bg-slate-800 mx-0.5" />
-
-          <button
-            id="btn-mode-single"
-            onClick={() => onDisplayModeChange('single')}
-            className={`p-1.5 rounded-lg text-xs transition-colors ${
-              state.displayMode === 'single'
-                ? 'bg-slate-800 text-red-400 font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Single Page View"
-          >
-            <Layers className="w-4 h-4" />
-          </button>
-
-          <button
-            id="btn-mode-continuous"
-            onClick={() => onDisplayModeChange('continuous')}
-            className={`p-1.5 rounded-lg text-xs transition-colors ${
-              state.displayMode === 'continuous'
-                ? 'bg-slate-800 text-red-400 font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Continuous Scroll View"
-          >
-            <Columns className="w-4 h-4" />
-          </button>
-
-          <div className="w-px h-4 bg-slate-800 mx-0.5" />
-
-          <button
-            id="btn-view-toggle"
-            onClick={() => onViewModeChange(state.viewMode === 'canvas' ? 'native' : 'canvas')}
-            className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors ${
-              state.viewMode === 'native'
-                ? 'bg-red-600/90 text-white font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title={state.viewMode === 'canvas' ? 'Switch to Native Browser Viewer' : 'Switch to Canvas Viewer'}
-          >
-            {state.viewMode === 'canvas' ? <Eye className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
           </button>
         </div>
       </div>
